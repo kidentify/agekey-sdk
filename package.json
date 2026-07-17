@@ -6,12 +6,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CadamTech/agekey-sdk.git",
+    "url": "git+https://github.com/kidentify/agekey-sdk.git",
     "directory": "agekey-sdk"
   },
   "homepage": "https://docs.agekey.org/",
   "bugs": {
-    "url": "https://github.com/CadamTech/agekey-sdk/issues"
+    "url": "https://github.com/kidentify/agekey-sdk/issues"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
