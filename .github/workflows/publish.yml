@@ -44,11 +44,16 @@ jobs:
     name: Release
     needs: quality
     runs-on: ubuntu-latest
+    # npm trusted publishing: npmjs.com accepts a publish only from this
+    # repository, workflow file and environment, using the short-lived OIDC
+    # token below, so no npm token is stored here. A reviewer approves each
+    # run in the environment before it can publish.
+    environment: npm-publish
     permissions:
       contents: write
       issues: write
       pull-requests: write
-      id-token: write
+      id-token: write # npm trusted publishing and provenance
     steps:
       # Releases are tag + GitHub Release only (no commit pushed back to
       # `main`), so the default GITHUB_TOKEN is sufficient and no branch
@@ -76,8 +81,14 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      # Trusted publishing needs npm 11.5.1 or later, and Node 22 ships npm 10.
+      # 11.11.0 is the npm version pnpm-lock.yaml already resolves for
+      # @semantic-release/npm.
+      - name: Install npm with trusted publishing support
+        run: npm install -g npm@11.11.0
+
       - name: Release
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'
