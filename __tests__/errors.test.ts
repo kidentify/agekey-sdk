@@ -15,7 +15,10 @@ import {
 describe("error classes", () => {
   it("AgeKeyError exposes code, message, docsUrl and cause", () => {
     const cause = new Error("root");
-    const e = new AgeKeyError("server_error", "msg", { docsUrl: "https://d", cause });
+    const e = new AgeKeyError("server_error", "msg", {
+      docsUrl: "https://d",
+      cause,
+    });
     expect(e).toBeInstanceOf(Error);
     expect(e.name).toBe("AgeKeyError");
     expect(e.code).toBe("server_error");
@@ -30,30 +33,69 @@ describe("error classes", () => {
     expect(e.cause).toBeUndefined();
   });
 
-  const cases: Array<[string, () => AgeKeyError, string, string, string | undefined]> = [
-    ["StateMismatchError", () => new StateMismatchError(), "state_mismatch",
+  const cases: Array<
+    [string, () => AgeKeyError, string, string, string | undefined]
+  > = [
+    [
+      "StateMismatchError",
+      () => new StateMismatchError(),
+      "state_mismatch",
       "State parameter mismatch. The callback state doesn't match the original request. This could indicate a CSRF attack or an expired session.",
-      "https://docs.agekey.org/troubleshooting#state-mismatch"],
-    ["NonceMismatchError", () => new NonceMismatchError(), "nonce_mismatch",
+      "https://docs.agekey.org/troubleshooting#state-mismatch",
+    ],
+    [
+      "NonceMismatchError",
+      () => new NonceMismatchError(),
+      "nonce_mismatch",
       "Nonce mismatch. The ID token nonce doesn't match the original request. This could indicate a replay attack.",
-      "https://docs.agekey.org/troubleshooting#nonce-mismatch"],
-    ["AccessDeniedError", () => new AccessDeniedError(), "access_denied",
+      "https://docs.agekey.org/troubleshooting#nonce-mismatch",
+    ],
+    [
+      "AccessDeniedError",
+      () => new AccessDeniedError(),
+      "access_denied",
       "User denied the age verification request or closed the dialog.",
-      "https://docs.agekey.org/guides/handling-denials"],
-    ["InvalidTokenError", () => new InvalidTokenError(), "invalid_token",
+      "https://docs.agekey.org/guides/handling-denials",
+    ],
+    [
+      "InvalidTokenError",
+      () => new InvalidTokenError(),
+      "invalid_token",
       "Invalid or malformed ID token received.",
-      "https://docs.agekey.org/guides/jwt-validation"],
-    ["UnauthorizedClientError", () => new UnauthorizedClientError(), "unauthorized_client",
+      "https://docs.agekey.org/guides/jwt-validation",
+    ],
+    [
+      "UnauthorizedClientError",
+      () => new UnauthorizedClientError(),
+      "unauthorized_client",
       "Client is not authorized to perform this request. Check your credentials.",
-      "https://docs.agekey.org/troubleshooting#unauthorized-client"],
-    ["ServerError", () => new ServerError(), "server_error",
+      "https://docs.agekey.org/troubleshooting#unauthorized-client",
+    ],
+    [
+      "ServerError",
+      () => new ServerError(),
+      "server_error",
       "AgeKey server error. Please try again later.",
-      "https://docs.agekey.org/troubleshooting#server-errors"],
-    ["NetworkError", () => new NetworkError(), "network_error",
-      "Network error during API request.", undefined],
+      "https://docs.agekey.org/troubleshooting#server-errors",
+    ],
+    [
+      "NetworkError",
+      () => new NetworkError(),
+      "network_error",
+      "Network error during API request.",
+      undefined,
+    ],
   ];
 
   for (const [name, make, code, message, docs] of cases) {
+    it(`${name} exposes documented name, code, message and docsUrl`, () => {
+      const e = make();
+      expect(e).toBeInstanceOf(AgeKeyError);
+      expect(e.name).toBe(name);
+      expect(e.code).toBe(code);
+      expect(e.message).toBe(message);
+      expect(e.docsUrl).toBe(docs);
+    });
   }
 
   it("custom messages override defaults", () => {
@@ -93,21 +135,27 @@ describe("mapOidcError", () => {
     expect((e as AccessDeniedError).errorDescription).toBe("desc");
     const d = mapOidcError("access_denied");
     expect(d).toBeInstanceOf(AccessDeniedError);
-    expect(d.message).toBe("User denied the age verification request or closed the dialog.");
+    expect(d.message).toBe(
+      "User denied the age verification request or closed the dialog.",
+    );
   });
 
   it("maps invalid_request", () => {
     const e = mapOidcError("invalid_request", "d");
     expect(e).toBeInstanceOf(InvalidRequestError);
     expect(e.message).toBe("d");
-    expect(mapOidcError("invalid_request").message).toBe("OIDC error: invalid_request");
+    expect(mapOidcError("invalid_request").message).toBe(
+      "OIDC error: invalid_request",
+    );
   });
 
   it("maps unauthorized_client", () => {
     const e = mapOidcError("unauthorized_client", "d");
     expect(e).toBeInstanceOf(UnauthorizedClientError);
     expect(e.message).toBe("d");
-    expect(mapOidcError("unauthorized_client").message).toBe("OIDC error: unauthorized_client");
+    expect(mapOidcError("unauthorized_client").message).toBe(
+      "OIDC error: unauthorized_client",
+    );
   });
 
   it("maps server_error", () => {
@@ -115,7 +163,9 @@ describe("mapOidcError", () => {
     expect(e).toBeInstanceOf(ServerError);
     expect(e.code).toBe("server_error");
     expect(e.message).toBe("d");
-    expect(mapOidcError("server_error").message).toBe("OIDC error: server_error");
+    expect(mapOidcError("server_error").message).toBe(
+      "OIDC error: server_error",
+    );
   });
 
   it("maps temporarily_unavailable to ServerError with prefix", () => {
@@ -123,7 +173,7 @@ describe("mapOidcError", () => {
     expect(e).toBeInstanceOf(ServerError);
     expect(e.message).toBe("Service temporarily unavailable. d");
     expect(mapOidcError("temporarily_unavailable").message).toBe(
-      "Service temporarily unavailable. OIDC error: temporarily_unavailable"
+      "Service temporarily unavailable. OIDC error: temporarily_unavailable",
     );
   });
 
