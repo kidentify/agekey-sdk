@@ -1,0 +1,41 @@
+// Renovate runs from kidentify/renovate-bot-self-hosted, which also holds the
+// shared preset this extends. Rules here apply after the preset's.
+// https://docs.renovatebot.com/configuration-options/
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: ['config:best-practices', 'local>kidentify/renovate-bot-self-hosted'],
+  // The ecosystems Dependabot covered. Others, such as the npm packages, are
+  // left for a deliberate change.
+  enabledManagers: ['github-actions'],
+  // Updates open as pull requests, as Dependabot's did, rather than waiting
+  // for someone to tick them on the Dependency Dashboard. They keep the
+  // preset's needs-human label and nothing merges on its own. Major updates
+  // still wait there, as the preset sets.
+  dependencyDashboardApproval: false,
+  packageRules: [
+    {
+      // Dependabot's 7-day cooldown. With the next rule, every update but an
+      // action's moved tag, which the preset sends to a person at once.
+      matchUpdateTypes: ['major', 'minor', 'patch', 'pin', 'pinDigest'],
+      minimumReleaseAge: '7 days',
+    },
+    {
+      matchUpdateTypes: ['digest'],
+      matchDatasources: ['!github-tags', '!github-releases'],
+      minimumReleaseAge: '7 days',
+    },
+    {
+      // Every action in one pull request a week, as Dependabot grouped them.
+      matchManagers: ['github-actions'],
+      groupName: 'github-actions',
+    },
+    {
+      // An action's digest update alone means a moved tag. This puts it back
+      // in the preset's own group, so it never waits behind the weekly one.
+      matchManagers: ['github-actions'],
+      matchDatasources: ['!docker'],
+      matchUpdateTypes: ['digest'],
+      groupName: 'action digests',
+    },
+  ],
+}
