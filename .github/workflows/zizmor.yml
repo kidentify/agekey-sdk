@@ -1,6 +1,6 @@
 name: zizmor
 
-# Audits the workflows and Dependabot config under .github with zizmor, offline,
+# Audits the workflows under .github with zizmor, offline,
 # and fails on any high-severity finding. If a finding is acceptable, add
 # `# zizmor: ignore[<rule>]` to the reported line with the reason above it.
 on:
